@@ -109,7 +109,7 @@ curl -X POST http://localhost:8080/api/v1/calculate/ \
 -d '{invalid}'
 ```
 ----------------------------------------------------------
-Примеры запросов (Postman или curl)
+## Примеры запросов (Postman или curl)
 
 Тело запроса если используете postman (на Url : localhost:8080/api/v1/calculate)
 {
