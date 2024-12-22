@@ -111,26 +111,26 @@ curl -X POST http://localhost:8080/api/v1/calculate/ \
 ----------------------------------------------------------
 ## Примеры запросов (Postman или curl)
 
-- `Тело запроса если используете postman (на Url : localhost:8080/api/v1/calculate)\n
-  {\n
-      "expression":"1+1"\n 
-  }`
+- `Тело запроса если используете postman (на Url : localhost:8080/api/v1/calculate)`
+- `  {`
+- `      "expression":"1+1" `
+- `  }`
 
-Корректный запрос (вернет 2 и статус код 200)
-    curl.exe -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data "{\"expression\":\"1+1\"}"
-Ответ
-    {"result":2,"code":200}
+- `Корректный запрос (вернет 2 и статус код 200)`
+- `    curl.exe -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data "{\"expression\":\"1+1\"}"`
+- `Ответ`
+- `    {"result":2,"code":200}`
 
-Некорректный запрос (вернет ошибку и статус код 422)
-    curl.exe -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data "{\"expression\":\"1++\"}"
-Ответ
-    {"error":"Expression is not valid","code":422}
+- `Некорректный запрос (вернет ошибку и статус код 422)`
+- `    curl.exe -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data "{\"expression\":\"1++\"}"`
+- `Ответ`
+- `    {"error":"Expression is not valid","code":422}`
 
-Ошибка статус 500
-    curl -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data '{"expression":"10/0"}'
+- `Ошибка статус 500`
+- `    curl -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data '{"expression":"10/0"}'`
 
 
 
-Примечания
+- `Примечания`
 Для работы API требуется установленный Go (версии 1.18 и выше).
 Все зависимости проекта управляются через go mod. Убедитесь, что в корне проекта находится go.mod.
