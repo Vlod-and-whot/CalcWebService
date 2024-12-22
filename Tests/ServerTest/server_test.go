@@ -40,7 +40,7 @@ func TestCalcHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest("POST", "/api/v1/calculate/", bytes.NewBufferString(tt.requestBody))
 			w := httptest.NewRecorder()
-			Server.Server.CalcHandler(w, req)
+			Server.CalcHandler(w, req)
 
 			res := w.Result()
 			if res.StatusCode != tt.expectedStatus {
@@ -58,11 +58,6 @@ func TestCalcHandler(t *testing.T) {
 }
 
 func TestRunServer(t *testing.T) {
-	go func() {
-		app := New()
-		app.RunServer()
-	}()
-
 	resp, err := http.Post("http://localhost:8080/api/v1/calculate/", "application/json", bytes.NewBufferString(`{"expression": "1 + 2"}`))
 	if err != nil {
 		t.Fatalf("could not send request: %v", err)
@@ -74,16 +69,15 @@ func TestRunServer(t *testing.T) {
 	}
 }
 
-// Простой тест для ConfigFromEnv
 func TestConfigFromEnv(t *testing.T) {
 	os.Setenv("PORT", "3000")
-	config := ConfigFromEnv()
+	config := Server.ConfigFromEnv()
 	if config.Addr != "3000" {
 		t.Errorf("expected port 3000, got %s", config.Addr)
 	}
 
 	os.Unsetenv("PORT")
-	config = ConfigFromEnv()
+	config = Server.ConfigFromEnv()
 	if config.Addr != "8080" {
 		t.Errorf("expected default port 8080, got %s", config.Addr)
 	}
