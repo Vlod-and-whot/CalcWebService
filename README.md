@@ -1,24 +1,23 @@
-# YANDEX-GO_CALCULATOR_PROJECT
+# CalcWebService
 
-# Простой веб-сервис для вычисления арифметических выражений
+# Простой веб-сервис для подсчета арифметических уравнений(калькулятор)
 
 ## Описание
-Этот проект реализует веб-сервис, который вычисляет арифметические выражения, переданные пользователем через HTTP-запрос.
+Здесь представлен простой веб-сервис на языке golang, способный выполнять функции калькулятора, а именно считать выражения, которые ему передал пользователь через HTTP-запрос.
 
 ## Структура проекта
 
 - `cmd/` — точка входа приложения.
-- `custom_errors` - спецальные ситуативные случаи ошибок.
 - `internal/` — внутренняя логика и модули приложения.
-- `pkg/` — вспомогательные пакеты и утилиты.
-
+- `pkg/` — вспомогательные пакеты и утилиты(тесты для веб-сервиса).
+- `custom_errors` - спецальные ситуативные случаи ошибок(деление на 0, некорректный ввод и тд).
 
 ## Запуск сервиса
 
 1. Установите [Go](https://go.dev/dl/).
 2. Склонируйте проект с GitHub:
     ```bash
-    git clone https://github.com/onel1nfavxx/YANDEX-GO_CALCULATOR_PROJECT.git
+    git clone https://github.com/Vlod-and-Whot/CalcWebService.git
     ```
 3. Перейдите в папку проекта и запустите сервер:
     ```bash
@@ -83,6 +82,17 @@ go test ./...
 cURLs:
 curl -X POST http://localhost:8080/api/v1/calculate/ \
 -H "Content-Type: application/json" \
+-d '{"expression": "error"}'
+
+curl -X POST http://localhost:8080/api/v1/calculate/ \
+-H "Content-Type: application/json" \
+-d ''
+
+curl -X POST http://localhost:8080/api/v1/calculate/ \
+-d '{"expression": "1 + 2"}'
+
+curl -X POST http://localhost:8080/api/v1/calculate/ \
+-H "Content-Type: application/json" \
 -d '{"expression": "1 + 2"}'
 
 curl -X POST http://localhost:8080/api/v1/calculate/ \
@@ -92,17 +102,6 @@ curl -X POST http://localhost:8080/api/v1/calculate/ \
 curl -X POST http://localhost:8080/api/v1/calculate/ \
 -H "Content-Type: application/json" \
 -d '{invalid}'
-
-curl -X POST http://localhost:8080/api/v1/calculate/ \
--H "Content-Type: application/json" \
--d '{"expression": "error"}'
-
-curl -X POST http://localhost:8080/api/v1/calculate/ \
--H "Content-Type: application/json" \
--d ''
-
-curl -X POST http://localhost:8080/api/v1/calculate/ \
--d '{"expression": "1 + 2"}'
 
 
 Примечания
