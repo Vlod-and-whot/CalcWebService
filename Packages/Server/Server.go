@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -19,6 +20,46 @@ type ResponseSuccess struct {
 
 type ResponseError struct {
 	Error string `json:"error"`
+}
+
+type Config struct {
+	Addr string
+}
+
+func ConfigFromEnv() *Config {
+	config := new(Config)
+	config.Addr = os.Getenv("PORT")
+	if config.Addr == "" {
+		config.Addr = "8080"
+	}
+	return config
+}
+
+func CalcHandler(w http.ResponseWriter, r *http.Request) {
+	var req Request
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid"})
+		fmt.Println(err)
+		return
+	}
+
+	result, err := Calculation.Calc(req.Expression)
+	if err != nil {
+		switch err.Error() {
+		case "недопустимый символ", "пустое выражение", "несоответствующая скобка", "ошибка в выражении", "ошибка - недостаточно данных для вычисления", "ошибка - деление на ноль", "ошибка - неизвестная операция":
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid"})
+			fmt.Println(err)
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(ResponseError{Error: "Internal server error"})
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(ResponseSuccess{Result: floatToString(result)})
 }
 
 func Server() {
