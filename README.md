@@ -107,7 +107,7 @@ curl -X POST http://localhost:8080/api/v1/calculate/ \
 curl -X POST http://localhost:8080/api/v1/calculate/ \
 -H "Content-Type: application/json" \
 -d '{invalid}'
-
+```
 ----------------------------------------------------------
 Примеры запросов (Postman или curl)
 
