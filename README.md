@@ -111,10 +111,10 @@ curl -X POST http://localhost:8080/api/v1/calculate/ \
 ----------------------------------------------------------
 ## Примеры запросов (Postman или curl)
 
-Тело запроса если используете postman (на Url : localhost:8080/api/v1/calculate)
-{
-    "expression":"1+1"   
-}
+- `Тело запроса если используете postman (на Url : localhost:8080/api/v1/calculate)`
+- `{`
+- `    "expression":"1+1"`   
+- `}`
 
 Корректный запрос (вернет 2 и статус код 200)
     curl.exe -X POST http://localhost:8000/api/v1/calculate --header "Content-Type: application/json" --data "{\"expression\":\"1+1\"}"
