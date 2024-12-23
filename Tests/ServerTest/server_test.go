@@ -1,7 +1,7 @@
 package ServerTest
 
 import (
-	"CalculationWebService/Packages/Server"
+	"CalculationWebService/Packages/Handler"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -40,7 +40,7 @@ func TestCalcHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest("POST", "/api/v1/calculate/", bytes.NewBufferString(tt.requestBody))
 			w := httptest.NewRecorder()
-			Server.CalcHandler(w, req)
+			Handler.CalcHandler(w, req)
 
 			res := w.Result()
 			if res.StatusCode != tt.expectedStatus {
@@ -71,13 +71,13 @@ func TestRunServer(t *testing.T) {
 
 func TestConfigFromEnv(t *testing.T) {
 	os.Setenv("PORT", "3000")
-	config := Server.ConfigFromEnv()
+	config := Handler.ConfigFromEnv()
 	if config.Addr != "3000" {
 		t.Errorf("expected port 3000, got %s", config.Addr)
 	}
 
 	os.Unsetenv("PORT")
-	config = Server.ConfigFromEnv()
+	config = Handler.ConfigFromEnv()
 	if config.Addr != "8080" {
 		t.Errorf("expected default port 8080, got %s", config.Addr)
 	}
