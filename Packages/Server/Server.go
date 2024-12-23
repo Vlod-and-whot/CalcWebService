@@ -16,7 +16,7 @@ type Request struct {
 
 type ResponseSuccess struct {
 	Result string `json:"result"`
-	Code  int    `json:"code"`
+	Code   int    `json:"code"`
 }
 
 type ResponseError struct {
@@ -83,7 +83,7 @@ func Server() {
 		result, err := Calculation.Calc(req.Expression)
 		if err != nil {
 			switch err.Error() {
-			case "недопустимый символ", "пустое выражение", "несоответствующая скобка", "ошибка в выражении", "ошибка - недостаточно данных для вычисления", "ошибка - деление на ноль", "ошибка - неизвестная операция":
+			case "invalid expression", "division by zero":
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid", Code: 405})
 				fmt.Println(err)
