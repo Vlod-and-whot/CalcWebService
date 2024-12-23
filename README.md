@@ -25,17 +25,6 @@
     ```
 4. Сервис будет доступен по адресу: [http://localhost:8080/api/v1/calculate](http://localhost:8080/api/v1/calculate).
 
-### Альтернативный запуск
-Вы можете использовать скрипты для сборки и запуска:
-- **Для Linux/MacOS:**
-    ```bash
-    ./build/build.sh
-    ```
-- **Для Windows:**
-    ```powershell
-    .\build\build.bat
-    ```
-
 ## Эндпоинты
 
 ### `POST /api/v1/calculate`
