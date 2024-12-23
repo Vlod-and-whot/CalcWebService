@@ -10,7 +10,7 @@ func Calc(expression string) (float64, error) {
 	expression = strings.ReplaceAll(expression, " ", "")
 
 	if expression == "" {
-		return 0, errors.New("пустое выражение")
+		return 0, errors.New("invalid expression")
 	}
 
 	var numbers []float64
@@ -18,7 +18,7 @@ func Calc(expression string) (float64, error) {
 
 	calculate := func() error {
 		if len(numbers) < 2 || len(ops) == 0 {
-			return errors.New("ошибка - недостаточно данных для вычисления")
+			return errors.New("invalid expression")
 		}
 		b := numbers[len(numbers)-1]
 		a := numbers[len(numbers)-2]
@@ -37,11 +37,11 @@ func Calc(expression string) (float64, error) {
 			result = a * b
 		case '/':
 			if b == 0 {
-				return errors.New("ошибка - деление на ноль")
+				return errors.New("division by zero")
 			}
 			result = a / b
 		default:
-			return errors.New("ошибка - неизвестная операция")
+			return errors.New("invalid expression")
 		}
 		numbers = append(numbers, result)
 		return nil
@@ -70,7 +70,7 @@ func Calc(expression string) (float64, error) {
 				}
 			}
 			if len(ops) == 0 {
-				return 0, errors.New("несоответствующая скобка")
+				return 0, errors.New("invalid expression")
 			}
 			ops = ops[:len(ops)-1]
 		} else if char == '+' || char == '-' || char == '*' || char == '/' {
@@ -81,7 +81,7 @@ func Calc(expression string) (float64, error) {
 			}
 			ops = append(ops, char)
 		} else {
-			return 0, errors.New("недопустимый символ")
+			return 0, errors.New("invalid expression")
 		}
 	}
 
@@ -92,7 +92,7 @@ func Calc(expression string) (float64, error) {
 	}
 
 	if len(numbers) != 1 {
-		return 0, errors.New("ошибка в выражении")
+		return 0, errors.New("invalid expression")
 	}
 
 	return numbers[0], nil
