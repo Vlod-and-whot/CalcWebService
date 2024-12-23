@@ -30,7 +30,7 @@ func TestCalc(t *testing.T) {
 		{"priority", "3 * 7 - 5", 16, nil},
 		{"priority", "54 / (6 + 3)", 6, nil},
 		{"priority", "2 + 2 * 2", 6, nil},
-		{"priority", "2 + 2 / 2", 1, nil},
+		{"priority", "2 + 2 / 2", 3, nil},
 		{"priority", "2 + 3 * (4 + 5)", 29, nil},
 		{"priority", "(3 - 2) * (3 + 2)", 5, nil},
 		{"priority", "4 + 2 * 2 * 3 + 9", 25, nil},
