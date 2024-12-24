@@ -15,12 +15,10 @@ type Request struct {
 
 type ResponseSuccess struct {
 	Result string `json:"result"`
-	Code   int    `json:"code"`
 }
 
 type ResponseError struct {
 	Error string `json:"error"`
-	Code  int    `json:"code"`
 }
 
 type Config struct {
@@ -39,14 +37,14 @@ func ConfigFromEnv() *Config {
 func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(ResponseError{Error: "Method not allowed", Code: 405})
+		json.NewEncoder(w).Encode(ResponseError{Error: "Method not allowed"})
 		return
 	}
 
 	var req Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid", Code: 422})
+		json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid"})
 		log.Println("Error decoding request body:", err)
 		return
 	}
@@ -56,18 +54,18 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 		switch err.Error() {
 		case "invalid expression", "division by zero":
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid", Code: 422})
+			json.NewEncoder(w).Encode(ResponseError{Error: "Expression is not valid"})
 			log.Println("Calculation error:", err)
 		default:
 			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(ResponseError{Error: "Internal server error", Code: 500})
+			json.NewEncoder(w).Encode(ResponseError{Error: "Internal server error"})
 			log.Println("Internal server error:", err)
 		}
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ResponseSuccess{Result: floatToString(result), Code: 200})
+	json.NewEncoder(w).Encode(ResponseSuccess{Result: floatToString(result)})
 }
 
 func floatToString(f float64) string {
