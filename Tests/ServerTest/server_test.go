@@ -1,4 +1,4 @@
-package ServerTest
+package CalculationTest
 
 import (
 	"CalculationWebService/Packages/Handler"
@@ -11,74 +11,174 @@ import (
 )
 
 func TestCalcHandler(t *testing.T) {
-	tests := []struct {
-		name        string
-		requestBody string
+	handler := http.HandlerFunc(Handler.CalcHandler)
 
-		expectedStatus int
-		expectedResult float64
+	tests := []struct {
+		name         string
+		method       string
+		requestBody  interface{}
+		expectedCode int
+		expectedBody interface{}
 	}{
 		{
-			name:           "Successful calculation",
-			requestBody:    `{"expression": "1 + 2"}`,
-			expectedStatus: http.StatusOK,
-			expectedResult: 3,
+			name:         "Valid Expression",
+			method:       http.MethodPost,
+			requestBody:  Handler.Request{Expression: "2 + 3 * 4"},
+			expectedCode: http.StatusOK,
+			expectedBody: Handler.ResponseSuccess{Result: "14", Code: 200},
 		},
 		{
-			name:           "Invalid expression",
-			requestBody:    `{"expression": "invalid"}`,
-			expectedStatus: http.StatusUnprocessableEntity,
+			name:         "Invalid Method",
+			method:       http.MethodGet,
+			requestBody:  nil,
+			expectedCode: http.StatusMethodNotAllowed,
+			expectedBody: Handler.ResponseError{Error: "Method not allowed", Code: 405},
 		},
 		{
-			name:           "Malformed JSON",
-			requestBody:    `{invalid}`,
-			expectedStatus: http.StatusBadRequest,
+			name:         "Invalid Expression - Division by Zero",
+			method:       http.MethodPost,
+			requestBody:  Handler.Request{Expression: "10 / 0"},
+			expectedCode: http.StatusUnprocessableEntity,
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+		},
+		{
+			name:         "Invalid Expression - Syntax Error",
+			method:       http.MethodPost,
+			requestBody:  Handler.Request{Expression: "5 + * 2"},
+			expectedCode: http.StatusUnprocessableEntity,
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+		},
+		{
+			name:         "Malformed JSON",
+			method:       http.MethodPost,
+			requestBody:  "invalid json",
+			expectedCode: http.StatusUnprocessableEntity,
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("POST", "/api/v1/calculate/", bytes.NewBufferString(tt.requestBody))
-			w := httptest.NewRecorder()
-			Handler.CalcHandler(w, req)
+			var reqBody []byte
+			var err error
 
-			res := w.Result()
-			if res.StatusCode != tt.expectedStatus {
-				t.Errorf("expected status %d, got %d", tt.expectedStatus, res.StatusCode)
-			}
-			if tt.expectedStatus == http.StatusOK {
-				var response map[string]float64
-				json.NewDecoder(res.Body).Decode(&response)
-				if response["result"] != tt.expectedResult {
-					t.Errorf("expected result %f, got %f", tt.expectedResult, response["result"])
+			switch body := tt.requestBody.(type) {
+			case string:
+				reqBody = []byte(body)
+			case Handler.Request:
+				reqBody, err = json.Marshal(body)
+				if err != nil {
+					t.Fatalf("Не удалось сериализовать тело запроса: %v", err)
 				}
+			case nil:
+				reqBody = nil
+			default:
+				t.Fatalf("Неизвестный тип тела запроса: %T", body)
+			}
+
+			req, err := http.NewRequest(tt.method, "/api/v1/calculate", bytes.NewBuffer(reqBody))
+			if err != nil {
+				t.Fatalf("Не удалось создать запрос: %v", err)
+			}
+
+			rr := httptest.NewRecorder()
+
+			handler.ServeHTTP(rr, req)
+
+			if rr.Code != tt.expectedCode {
+				t.Errorf("Ожидался статус %d, получен %d", tt.expectedCode, rr.Code)
+			}
+
+			switch expected := tt.expectedBody.(type) {
+			case Handler.ResponseSuccess:
+				var resp Handler.ResponseSuccess
+				if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+					t.Errorf("Не удалось декодировать ответ: %v", err)
+				}
+				if resp != expected {
+					t.Errorf("Ожидался ответ %+v, получен %+v", expected, resp)
+				}
+			case Handler.ResponseError:
+				var resp Handler.ResponseError
+				if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+					t.Errorf("Не удалось декодировать ответ: %v", err)
+				}
+				if resp != expected {
+					t.Errorf("Ожидался ответ %+v, получен %+v", expected, resp)
+				}
+			default:
+				t.Errorf("Неизвестный тип ожидаемого тела ответа: %T", expected)
 			}
 		})
 	}
 }
 
-func TestRunServer(t *testing.T) {
-	resp, err := http.Post("http://localhost:8080/api/v1/calculate/", "application/json", bytes.NewBufferString(`{"expression": "1 + 2"}`))
-	if err != nil {
-		t.Fatalf("could not send request: %v", err)
-	}
-	defer resp.Body.Close()
+func TestServer(t *testing.T) {
+	os.Setenv("PORT", "0")
 
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("expected status OK, got %v", resp.Status)
-	}
-}
+	testServer := httptest.NewServer(http.HandlerFunc(Handler.CalcHandler))
+	defer testServer.Close()
 
-func TestConfigFromEnv(t *testing.T) {
-	os.Setenv("PORT", "3000")
-	config := Handler.ConfigFromEnv()
-	if config.Addr != "3000" {
-		t.Errorf("expected port 3000, got %s", config.Addr)
+	tests := []struct {
+		name         string
+		method       string
+		expression   string
+		expectedCode int
+		expectedBody interface{}
+	}{
+		{
+			name:         "Server Valid Expression",
+			method:       http.MethodPost,
+			expression:   "10 - 2 * 3",
+			expectedCode: http.StatusOK,
+			expectedBody: Handler.ResponseSuccess{Result: "4", Code: 200},
+		},
+		{
+			name:         "Server Invalid Expression",
+			method:       http.MethodPost,
+			expression:   "10 / (5 - 5)",
+			expectedCode: http.StatusUnprocessableEntity,
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+		},
 	}
 
-	os.Unsetenv("PORT")
-	config = Handler.ConfigFromEnv()
-	if config.Addr != "8080" {
-		t.Errorf("expected default port 8080, got %s", config.Addr)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			reqBody, err := json.Marshal(Handler.Request{Expression: tt.expression})
+			if err != nil {
+				t.Fatalf("Не удалось сериализовать тело запроса: %v", err)
+			}
+
+			resp, err := http.Post(testServer.URL, "application/json", bytes.NewBuffer(reqBody))
+			if err != nil {
+				t.Fatalf("Не удалось отправить запрос: %v", err)
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != tt.expectedCode {
+				t.Errorf("Ожидался статус %d, получен %d", tt.expectedCode, resp.StatusCode)
+			}
+
+			switch expected := tt.expectedBody.(type) {
+			case Handler.ResponseSuccess:
+				var respBody Handler.ResponseSuccess
+				if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+					t.Errorf("Не удалось декодировать ответ: %v", err)
+				}
+				if respBody != expected {
+					t.Errorf("Ожидался ответ %+v, получен %+v", expected, respBody)
+				}
+			case Handler.ResponseError:
+				var respBody Handler.ResponseError
+				if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+					t.Errorf("Не удалось декодировать ответ: %v", err)
+				}
+				if respBody != expected {
+					t.Errorf("Ожидался ответ %+v, получен %+v", expected, respBody)
+				}
+			default:
+				t.Errorf("Неизвестный тип ожидаемого тела ответа: %T", expected)
+			}
+		})
 	}
 }
