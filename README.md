@@ -12,17 +12,13 @@
 - `CalcWebService/Tests/` — директория тестов к кальулятору и веб-сервису.
 - `CalcWebService/custom_errors` - спецальные ситуативные случаи ошибок(деление на 0, некорректный ввод и тд).
 
+P.S. архив CalcWebService писать необязательно, просто общее обозначение
+
 ## Запуск сервиса
 
 1. Установите [Go](https://go.dev/dl/).
-2. Склонируйте проект с GitHub:
-    ```bash
-    git clone https://github.com/Vlod-and-Whot/CalcWebService.git
-    ```
-3. Перейдите в папку проекта и запустите сервер:
-    ```bash
-    go run ./main.go
-    ```
+2. Склонируйте проект с GitHub
+3. Перейдите в папку проекта и запустите сервер
 4. Сервис будет доступен по адресу: [http://localhost:8080/api/v1/calculate](http://localhost:8080/api/v1/calculate).
 
 ## Эндпоинты
