@@ -25,35 +25,35 @@ func TestCalcHandler(t *testing.T) {
 			method:       http.MethodPost,
 			requestBody:  Handler.Request{Expression: "2 + 3 * 4"},
 			expectedCode: http.StatusOK,
-			expectedBody: Handler.ResponseSuccess{Result: "14", Code: 200},
+			expectedBody: Handler.ResponseSuccess{Result: "14"},
 		},
 		{
 			name:         "Invalid Method",
 			method:       http.MethodGet,
 			requestBody:  nil,
 			expectedCode: http.StatusMethodNotAllowed,
-			expectedBody: Handler.ResponseError{Error: "Method not allowed", Code: 405},
+			expectedBody: Handler.ResponseError{Error: "Method not allowed"},
 		},
 		{
 			name:         "Invalid Expression - Division by Zero",
 			method:       http.MethodPost,
 			requestBody:  Handler.Request{Expression: "10 / 0"},
 			expectedCode: http.StatusUnprocessableEntity,
-			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid"},
 		},
 		{
 			name:         "Invalid Expression - Syntax Error",
 			method:       http.MethodPost,
 			requestBody:  Handler.Request{Expression: "5 + * 2"},
 			expectedCode: http.StatusUnprocessableEntity,
-			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid"},
 		},
 		{
 			name:         "Malformed JSON",
 			method:       http.MethodPost,
 			requestBody:  "invalid json",
 			expectedCode: http.StatusUnprocessableEntity,
-			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid"},
 		},
 	}
 
@@ -131,14 +131,14 @@ func TestServer(t *testing.T) {
 			method:       http.MethodPost,
 			expression:   "10 - 2 * 3",
 			expectedCode: http.StatusOK,
-			expectedBody: Handler.ResponseSuccess{Result: "4", Code: 200},
+			expectedBody: Handler.ResponseSuccess{Result: "4"},
 		},
 		{
 			name:         "Server Invalid Expression",
 			method:       http.MethodPost,
 			expression:   "10 / (5 - 5)",
 			expectedCode: http.StatusUnprocessableEntity,
-			expectedBody: Handler.ResponseError{Error: "Expression is not valid", Code: 422},
+			expectedBody: Handler.ResponseError{Error: "Expression is not valid"},
 		},
 	}
 
